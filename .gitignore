@@ -1,0 +1,28 @@
+# .gitignore for langgraph-practice repository
+
+# Environment files (contain API keys, secrets)
+.env
+
+# Python virtual environment directory
+.venv/
+
+# Byte-compiled / optimized Python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE / editor settings (optional)
+.vscode/
+.idea/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
