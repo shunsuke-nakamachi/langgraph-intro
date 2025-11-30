@@ -1,267 +1,205 @@
-# langgraph入門
-langchainとlanggraphがどういうもので何ができるのかを知ってもらうためのロードマップです。
-まずtrainingフォルダ内の各セクションのコードを理解して次にpracticeフォルダ何の課題に取り組んでみましょう。
+# LangGraph & LangSmith 学習リポジトリ
 
-0. イントロダクション
-Qiitaの記事です。LangGraphの基本的な考え方を理解するのに役立ちます。
-https://qiita.com/sakuraia/items/27db3f118e0ee41c54c1
+LangChainとLangGraphを使ったAIエージェント開発、およびLangSmithを使ったデバッグ・監視の学習リポジトリです。
 
-1. Persistence（永続化・メモリ管理）
-Web アプリは基本的に「ステートレス（状態を持たない）」です。ユーザーがブラウザでリロードしたり、別の人がアクセスしてきたりしても、それぞれの会話の状態（State）を正しく維持する必要があります。
+このリポジトリでは、LangGraphの基礎から応用、実践的なアプリケーション開発まで、段階的に学習できるよう構成されています。
 
-学ぶべきこと: Checkpointer (MemorySaver, AsyncSqliteSaver, PostgresSaver など)
-なぜ必要か: 今のコードだとプログラムが終了すると会話履歴が消えます。Web アプリでは、データベースに State を保存し、thread_id を使って「Aさんの会話の続き」を復元する仕組みが必須です。
+## 📚 プロジェクト構成
 
-2. Human-in-the-loop（人間による承認・介入）
-ファクトチェッカーのように「誤情報の発信が許されない」システムでは、AI が勝手に回答する前に人間が内容を確認し、承認または修正するステップが必要です。
-
-学ぶべきこと: interrupt_before, interrupt_after
-なぜ必要か: 「調査完了」→「（ここで一時停止）人間が確認」→「公開」というフローを作るためです。LangGraph はこの「一時停止と再開」を非常に得意としています。
-
-3. Streaming（ストリーミング）
-Web アプリで AI の回答を待つ間、画面が数秒間フリーズするのは UX（ユーザー体験）として最悪です。ChatGPT のように、文字が生成されるそばから画面に表示する必要があります。
-
-学ぶべきこと: astream_events, astream_log
-なぜ必要か: サーバー側で生成されたトークンをリアルタイムでフロントエンドに送る実装が必要になります。
-
-4. Subgraphs（サブグラフ）
-機能が増えると、1つのグラフに全てのノード（調査、執筆、翻訳、校正...）を詰め込むとスパゲッティ化して管理不能になります。
-
-学ぶべきこと: グラフの中にグラフを入れる階層構造
-なぜ必要か: 「ファクトチェック」という大きなグラフの中に、「Web検索グラフ」や「文章校正グラフ」といった独立した小さなグラフを部品として組み込むことで、開発とテストが楽になります。
-
-5. Reflection（自己省察・自己修正）
-高品質なファクトチェックを行うには、一度生成した回答を AI 自身に「これ本当に正しい？ソースはある？」と批判させ、修正させるループが有効です。
-
-学ぶべきこと: 循環ループの設計と脱出条件
-なぜ必要か: 「検索」→「回答生成」→「自己批判（間違い発見）」→「再検索」→「修正回答」というサイクルを作ることで、精度を劇的に向上させることができます。
-
-## 使用しているライブラリ
-
-それぞれのライブラリ（モジュール）の役割について解説します。これらは LangGraph でアプリを作る際の「標準セット」のようなものです。
-
-### 1. 環境設定・型定義
-
-```python
-from dotenv import load_dotenv
+```text
+langgraph-practice/
+├── LangGraph/              # LangGraph学習コンテンツ
+│   ├── LangGraph-training/ # 基礎編（5つのセクション）
+│   ├── LangGraph-advance/   # 応用編（6つのセクション）
+│   ├── LangGraph-practice/  # 実践編（ファクトチェッカー）
+│   └── README.md           # LangGraph学習ガイド
+│
+├── LangSmith/              # LangSmith学習コンテンツ
+│   ├── LangSmith-training/ # LangSmithトレーシング・デバッグ
+│   ├── images/             # スクリーンショット
+│   └── README.md           # LangSmith学習ガイド
+│
+└── README.md               # 本ファイル（全体ガイド）
 ```
 
-*   **役割**: `.env` ファイルに書かれた内容（APIキーなど）を読み込んで、プログラム内で使えるようにします。
-*   **なぜ必要か**: OpenAI の API キーなどをコードに直書きするのは危険なので、隠しファイル（.env）から読み込むのが定石だからです。
+## 🎯 学習の流れ
 
-```python
-from typing import TypedDict, Annotated
+### ステップ1: LangGraph基礎編（LangGraph-training）
+
+LangGraphの基本機能を段階的に学習します。
+
+1. **00_Introduction**: 基本的なチャットボットとツール使用
+2. **01_Persistence**: 会話履歴の永続化（`MemorySaver`、`thread_id`）
+3. **02_Human_in_the_loop**: 人間による承認・介入（`interrupt_before`、`interrupt_after`）
+4. **03_Streaming**: リアルタイム出力（`astream_events`、`astream_log`）
+5. **04_Subgraphs**: サブグラフ（グラフの階層構造）
+6. **05_Reflection**: 自己省察・自己修正（循環ループと脱出条件）
+
+詳細は [LangGraph/README.md](LangGraph/README.md) を参照してください。
+
+### ステップ2: LangGraph応用編（LangGraph-advance）
+
+より高度な機能を学習します。
+
+1. **06_Tools**: ツール呼び出し（`ToolNode`、`tools_condition`）
+2. **07_Parallel**: 並列実行
+3. **08_TimeTravel**: タイムトラベル（状態の巻き戻し）
+4. **09_Supervisor**: スーパーバイザーパターン（複数エージェントのルーティング）
+5. **10_ErrorHandling**: エラーハンドリング
+6. **11_MultiAgent**: マルチエージェントシステム（複数エージェントの協調）
+
+### ステップ3: LangGraph実践編（LangGraph-practice）
+
+基礎編で学んだ5つの機能を組み合わせたファクトチェッカーの実装例です。
+
+- 検索 → 事実検証 → スコア評価 → 必要に応じて再検索のループ
+
+詳細は [LangGraph/LangGraph-practice/README.md](LangGraph/LangGraph-practice/README.md) を参照してください。
+
+### ステップ4: LangSmith（デバッグ・監視）
+
+LangSmithを使った実行ログの可視化とデバッグを学習します。
+
+- 環境変数の設定
+- 自動トレーシング
+- LangSmith UIでの確認
+- デバッグの活用
+- パフォーマンス分析
+
+詳細は [LangSmith/README.md](LangSmith/README.md) を参照してください。
+
+## 🚀 セットアップ手順
+
+### 1. リポジトリのクローン
+
+```bash
+git clone <repository-url>
+cd langgraph-practice
 ```
 
-*   **役割**: Python の標準機能で、「型（データの形）」を定義するためのものです。
-*   **なぜ必要か**: LangGraph では `State`（会話の状態）がどのような形をしているかを厳密に定義する必要があるため、これらを使って「辞書型だけど、中身はこうなってますよ」と宣言します。
+### 2. Python環境の準備
 
-### 2. AI モデル
+Python 3.8以上が必要です。
 
-```python
-from langchain_openai import ChatOpenAI
+```bash
+# 仮想環境の作成
+python3 -m venv .venv
+
+# 仮想環境の有効化
+# macOS/Linux:
+source .venv/bin/activate
+# Windows:
+# .venv\Scripts\activate
 ```
 
-*   **役割**: OpenAI の GPT モデル（gpt-4o など）を Python から簡単に使えるようにした「ラッパー（包み紙）」です。
-*   **なぜ必要か**: 生の API を叩くよりも、LangChain/LangGraph のシステムに組み込みやすい形で提供されているためです。
+### 3. 依存パッケージのインストール
 
-### 3. グラフ構築（LangGraph の核）
+各ディレクトリに `requirements.txt` があります。学習するセクションに応じてインストールしてください。
 
-```python
-from langgraph.graph import StateGraph, START, END
+```bash
+# LangGraph基礎編の場合
+cd LangGraph/LangGraph-training
+pip install -r requirements.txt
+
+# LangGraph応用編の場合
+cd LangGraph/LangGraph-advance
+pip install -r requirements.txt
+
+# LangSmithの場合
+cd LangSmith/LangSmith-training
+pip install -r requirements.txt
 ```
 
-*   **役割**:
-    *   `StateGraph`: グラフそのものを作る「設計図」の土台です。
-    *   `START`: グラフの「入口」を表す特別な定数です。
-    *   `END`: グラフの「出口（終了）」を表す特別な定数です。
-*   **なぜ必要か**: 「ここから始まって（START）、この処理をして、ここで終わる（END）」という流れを作るために必須です。
+### 4. 環境変数の設定
 
-```python
-from langgraph.graph.message import add_messages
+各ディレクトリに `.env` ファイルを作成し、以下の環境変数を設定してください。
+
+```env
+# OpenAI API キー（必須）
+OPENAI_API_KEY=your_openai_api_key_here
+
+# LangSmith トレーシング（オプション）
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=your_langsmith_api_key_here
+LANGCHAIN_PROJECT=langgraph-practice
 ```
 
-*   **役割**: 「新しいメッセージが来たら、古いリストの後ろに追加（append）する」という動きをする**特別な関数**です。
-*   **なぜ必要か**: これを使わないと、新しいメッセージが来るたびに古い履歴が上書きされて消えてしまいます。「履歴を積み上げていく」動作のために `Annotated[list, add_messages]` という形で使います。
+**重要**: `.env` ファイルは `.gitignore` に含まれているため、Gitにはコミットされません。各環境で個別に作成してください。
 
-### 4. 永続化
+### 5. LangSmithアカウントの作成（オプション）
 
-```python
-from langgraph.checkpoint.memory import MemorySaver
-```
+LangSmithを使う場合は、以下の手順でアカウントを作成してください。
 
-*   **役割**: 会話の状態（State）をコンピュータのメモリ（一時記憶）に保存するための機能です。
-*   **なぜ必要か**: これをグラフにセット（`checkpointer=memory`）することで、`thread_id` を指定して「さっきの続きから」会話を再開できるようになります。
-    *   ※ 本番環境では、ここを `PostgresSaver`（データベース）などに変えるだけで、本格的な永続化に切り替えられます。
+1. <https://smith.langchain.com/> にアクセス
+2. アカウント作成（GitHubアカウントまたはメールアドレスでサインアップ）
+3. APIキーの取得（アカウント設定 → API Keys）
+4. `.env` ファイルに `LANGCHAIN_API_KEY` を設定
 
----
+詳細は [LangSmith/README.md](LangSmith/README.md) を参照してください。
 
-## Training で使用しているライブラリ一覧
+## 📖 各ディレクトリの説明
 
-以下は `training/requirements.txt` に記載されているライブラリの詳細説明です。
+### LangGraph/
 
-### LangChain / LangGraph コアライブラリ（重要）
+LangGraphの学習コンテンツです。
 
-#### `langgraph` (1.0.4)
+- **LangGraph-training/**: 基礎編。永続化、Human-in-the-loop、Streaming、Subgraphs、Reflectionを学習
+- **LangGraph-advance/**: 応用編。ツール、並列実行、タイムトラベル、スーパーバイザー、エラーハンドリング、マルチエージェントを学習
+- **LangGraph-practice/**: 実践編。ファクトチェッカーの実装例
 
-```python
-from langgraph.graph import StateGraph, START, END
-```
+詳細は [LangGraph/README.md](LangGraph/README.md) を参照してください。
 
-*   **役割**: LangGraph の本体。`StateGraph` を使ってエージェントのワークフロー（処理の流れ）を構築します。
-*   **なぜ必要か**: 
-    *   `StateGraph` はグラフそのものを作る「設計図」の土台です。
-    *   `START` はグラフの「入口」、`END` は「出口（終了）」を表す特別な定数です。
-    *   「ここから始まって（START）、この処理をして、ここで終わる（END）」という流れを作るために必須です。
+### LangSmith/
 
-#### `langgraph-checkpoint` (3.0.1)
+LangSmithの学習コンテンツです。
 
-```python
-from langgraph.checkpoint.memory import MemorySaver
-```
+- **LangSmith-training/**: LangSmithを使ったトレーシング・デバッグの学習
+- **images/**: LangSmith UIのスクリーンショット
 
-*   **役割**: 永続化（Checkpointer）の機能を提供。会話の状態（State）をメモリやデータベースに保存します。
-*   **なぜ必要か**: 
-    *   これをグラフにセット（`checkpointer=memory`）することで、`thread_id` を指定して「さっきの続きから」会話を再開できるようになります。
-    *   `MemorySaver`（メモリ保存）、`PostgresSaver`（データベース保存）などが含まれます。
-    *   本番環境では `PostgresSaver` に変えるだけで、本格的な永続化に切り替えられます。
+詳細は [LangSmith/README.md](LangSmith/README.md) を参照してください。
 
-#### `langgraph-prebuilt` (1.0.5)
+## 🛠️ 必要な環境
 
-*   **役割**: よく使われるノードやツールの事前構築済みコンポーネント。
-*   **なぜ必要か**: 一般的なパターン（例：ツール呼び出しノード、条件分岐ノード）を自分で実装せずに使えるため、開発が速くなります。
+- **Python**: 3.8以上
+- **OpenAI API キー**: LangGraphの実行に必要
+- **LangSmith API キー**: LangSmithのトレーシング機能を使用する場合（オプション）
 
-#### `langgraph-sdk` (0.2.10)
+## 📚 参考リンク
 
-*   **役割**: LangGraph のクライアント SDK。リモートグラフ（別のサーバーで動いているグラフ）の呼び出しなどに使用。
-*   **なぜ必要か**: マイクロサービス構成で、グラフを API として公開する場合に必要になります。
+### LangGraph
 
-#### `langchain` (1.1.0)
+- **LangGraph公式ドキュメント**: <https://langchain-ai.github.io/langgraph/>
+- **LangChain公式ドキュメント**: <https://python.langchain.com/>
+- **Qiita記事（LangGraph入門）**: <https://qiita.com/sakuraia/items/27db3f118e0ee41c54c1>
 
-*   **役割**: LangChain の本体。LLM との統合、プロンプト管理、チェーン構築などの基盤ライブラリ。
-*   **なぜ必要か**: LangGraph は LangChain の上に構築されているため、基盤として必要です。プロンプトテンプレートやドキュメントローダーなどの便利機能も提供します。
+### LangSmith
 
-#### `langchain-core` (1.1.0)
+- **LangSmith公式サイト**: <https://smith.langchain.com/>
+- **LangSmithドキュメント**: <https://docs.smith.langchain.com/>
+- **APIキーの取得**: <https://smith.langchain.com/settings>
 
-```python
-from langchain_core.messages import HumanMessage, AIMessage
-```
+### OpenAI
 
-*   **役割**: LangChain のコア機能（メッセージ、ランナブル、ツールなど）を提供。
-*   **なぜ必要か**: 
-    *   `HumanMessage`（ユーザーからのメッセージ）、`AIMessage`（AI の返答）などのメッセージ型を定義します。
-    *   LangGraph の State で使う `messages` リストは、これらのメッセージオブジェクトで構成されます。
+- **OpenAI Platform**: <https://platform.openai.com/>
+- **APIキーの取得**: <https://platform.openai.com/account/api-keys>
 
-#### `langchain-openai` (1.1.0)
+## 💡 学習のコツ
 
-```python
-from langchain_openai import ChatOpenAI
-```
+1. **順番に学習**: 基礎編から順番に学習することで、段階的に理解を深められます
+2. **コードを実行**: 各セクションのコードを実際に実行して、動作を確認しましょう
+3. **コードを読む**: コードを読んで、どのように実装されているか理解しましょう
+4. **自分で改造**: コードを改造して、自分のアイデアを試してみましょう
+5. **LangSmithを活用**: LangSmithを使って実行過程を可視化し、デバッグに活用しましょう
 
-*   **役割**: OpenAI の API（ChatGPT など）を LangChain から簡単に使うためのラッパー（包み紙）。
-*   **なぜ必要か**: 
-    *   OpenAI の GPT モデル（gpt-4o など）を Python から簡単に使えるようにします。
-    *   生の API を叩くよりも、LangChain/LangGraph のシステムに組み込みやすい形で提供されています。
+## 🤝 貢献
 
-#### `langsmith` (0.4.48)
+このリポジトリは学習用のリポジトリです。改善提案やバグ報告は、IssueやPull Requestでお願いします。
 
-*   **役割**: LangChain/LangGraph のトレーシング・デバッグツール。実行ログを可視化できます。
-*   **なぜ必要か**: 
-    *   グラフの実行過程（どのノードがいつ実行されたか、LLM に何を送ったか、何が返ってきたか）を記録・可視化できます。
-    *   デバッグや性能分析に非常に便利です（オプション機能）。
+## 📝 ライセンス
 
-### その他の重要なライブラリ
+このリポジトリは学習目的で作成されています。各ライブラリのライセンスに従ってください。
 
-#### `python-dotenv` (1.2.1)
+## 🔗 関連リポジトリ
 
-```python
-from dotenv import load_dotenv
-```
-
-*   **役割**: `.env` ファイルに書かれた内容（API キーなど）を読み込んで、プログラム内で使えるようにします。
-*   **なぜ必要か**: OpenAI の API キーなどをコードに直書きするのは危険なので、隠しファイル（.env）から読み込むのが定石だからです。
-
-#### `pydantic` (2.12.5)
-
-```python
-from typing import TypedDict, Annotated
-```
-
-*   **役割**: データバリデーションと設定管理。State の型定義などに使用されます。
-*   **なぜ必要か**: LangGraph では `State`（会話の状態）がどのような形をしているかを厳密に定義する必要があるため、これらを使って「辞書型だけど、中身はこうなってますよ」と宣言します。
-
-### その他のサポートライブラリ
-
-### AI・LLM 関連
-
-| ライブラリ | バージョン | 役割 |
-|-----------|-----------|------|
-| `openai` | 2.8.1 | OpenAI の公式 Python クライアント。GPT-4 などの API を直接呼び出せます。 |
-| `tiktoken` | 0.12.0 | OpenAI のトークナイザー。テキストをトークンに分割してトークン数をカウントします。 |
-
-### データ処理・バリデーション
-
-| ライブラリ | バージョン | 役割 |
-|-----------|-----------|------|
-| `pydantic` | 2.12.5 | データバリデーションと設定管理。State の型定義などに使用されます。 |
-| `pydantic_core` | 2.41.5 | Pydantic のコア機能（Rust で高速化されています）。 |
-| `typing_extensions` | 4.15.0 | Python の型ヒント機能を拡張。Annotated などの新しい型機能を提供。 |
-| `typing-inspection` | 0.4.2 | 型情報のランタイム検査をサポート。 |
-
-### HTTP・ネットワーク
-
-| ライブラリ | バージョン | 役割 |
-|-----------|-----------|------|
-| `httpx` | 0.28.1 | 非同期 HTTP クライアント。外部 API 呼び出しに使用（requests の非同期版）。 |
-| `httpcore` | 1.0.9 | httpx の低レベル HTTP コア機能。 |
-| `requests` | 2.32.5 | 同期 HTTP クライアント。シンプルな API 呼び出しに使用。 |
-| `requests-toolbelt` | 1.0.0 | requests の拡張ツール（マルチパート、ストリーミングなど）。 |
-| `urllib3` | 2.5.0 | HTTP クライアントの基盤ライブラリ。 |
-| `certifi` | 2025.11.12 | SSL 証明書の検証に使用される信頼できる CA バンドル。 |
-
-### JSON・データシリアライゼーション
-
-| ライブラリ | バージョン | 役割 |
-|-----------|-----------|------|
-| `orjson` | 3.11.4 | 高速な JSON シリアライザー（Rust 実装）。 |
-| `ormsgpack` | 1.12.0 | MessagePack のシリアライザー。バイナリ形式でデータを効率的に保存。 |
-| `jsonpatch` | 1.33 | JSON Patch（RFC 6902）の実装。差分更新に使用。 |
-| `jsonpointer` | 3.0.0 | JSON Pointer（RFC 6901）の実装。JSON 内の特定の値を参照。 |
-| `jiter` | 0.12.0 | 高速な JSON イテレーター。 |
-
-### ユーティリティ
-
-| ライブラリ | バージョン | 役割 |
-|-----------|-----------|------|
-| `python-dotenv` | 1.2.1 | `.env` ファイルから環境変数を読み込む。API キーの管理に必須。 |
-| `dotenv` | 0.9.9 | 古いバージョンの dotenv（python-dotenv を使うことを推奨）。 |
-| `PyYAML` | 6.0.3 | YAML ファイルの読み書き。設定ファイルの管理に使用。 |
-| `packaging` | 25.0 | パッケージバージョンの解析・比較。 |
-| `tenacity` | 9.1.2 | リトライロジックの実装。API 呼び出しの失敗時に自動再試行。 |
-| `tqdm` | 4.67.1 | プログレスバーの表示。長時間処理の進捗を可視化。 |
-
-### グラフ・可視化
-
-| ライブラリ | バージョン | 役割 |
-|-----------|-----------|------|
-| `grandalf` | 0.8 | グラフレイアウトアルゴリズム。LangGraph の可視化に使用。 |
-
-### その他
-
-| ライブラリ | バージョン | 役割 |
-|-----------|-----------|------|
-| `anyio` | 4.11.0 | 非同期 I/O の抽象化レイヤー。asyncio と trio の両方をサポート。 |
-| `sniffio` | 1.3.1 | 実行中の非同期ライブラリを検出（asyncio か trio か）。 |
-| `h11` | 0.16.0 | HTTP/1.1 プロトコルの低レベル実装。 |
-| `idna` | 3.11 | 国際化ドメイン名（IDN）のエンコード・デコード。 |
-| `charset-normalizer` | 3.4.4 | 文字エンコーディングの自動検出。 |
-| `distro` | 1.9.0 | Linux ディストリビューション情報の取得。 |
-| `regex` | 2025.11.3 | 高度な正規表現機能（標準 re モジュールの拡張）。 |
-| `pyparsing` | 3.2.5 | テキストパーサーの構築ライブラリ。 |
-| `xxhash` | 3.6.0 | 高速ハッシュアルゴリズム。 |
-| `zstandard` | 0.25.0 | Zstandard 圧縮アルゴリズムの Python バインディング。 |
-| `annotated-types` | 0.7.0 | Pydantic で使用される型アノテーション。 |
-
-
-これらのライブラリは LangGraph アプリケーション開発の標準的なスタックです。必要に応じて追加のライブラリ（例：データベース接続用の `psycopg2`、Web フレームワーク用の `fastapi` など）をインストールしてください。# langgraph-intro
-# langgraph-intro
+- [LangChain公式リポジトリ](<https://github.com/langchain-ai/langchain>)
+- [LangGraph公式リポジトリ](<https://github.com/langchain-ai/langgraph>)
