@@ -139,3 +139,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+    print(graph.get_graph().print_ascii())
