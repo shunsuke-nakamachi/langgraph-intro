@@ -26,3 +26,7 @@ Thumbs.db
 
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
+
+/node_modules
+
+*.plantuml
