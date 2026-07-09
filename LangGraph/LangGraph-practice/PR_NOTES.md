@@ -1,5 +1,3 @@
-> ⚠️ **DRAFT — NOT READY FOR PR SUBMISSION** ⚠️
-
 ---
 
 # Fact-Checker — Design Notes
